@@ -7,6 +7,7 @@ from typing import Dict, List
 
 from src.models.minute import Minute
 from src.models.word_counter import TargetStatementsBySpeaker, AllTargetStatements, WordCountBySpeaker, AllWordCount
+from src.utils.process_str import convert_to_half_width
 
 
 class WordCounter:
@@ -49,7 +50,7 @@ class WordCounter:
             speaker_content: Dict[str, List[str]] = defaultdict(list)
             for minute in minutes:
                 for statement in minute.statements:
-                    speaker_content[statement.speaker_name].append(statement.content)
+                    speaker_content[statement.speaker_name].append(convert_to_half_width(statement.content))
             target_statements_list = [
                 TargetStatementsBySpeaker(speaker_name=speaker, statement_contents=contents)
                 for speaker, contents in speaker_content.items()
