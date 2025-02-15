@@ -38,6 +38,9 @@ def main():
             st.header(f"「{result.word}」の発言回数")
 
             fig = create_word_count_graph(result, start_period, end_period)
+            if fig is None:
+                st.warning("対象の発言はありませんでした。")
+                return
             st.plotly_chart(fig)
 
         except Exception as e:
