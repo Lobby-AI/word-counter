@@ -22,4 +22,6 @@ class WordCountBySpeaker(BaseModel):
 
 class AllWordCount(BaseModel):
     word: str
+    start_period: datetime
+    end_period: datetime
     word_count_list: List[WordCountBySpeaker]
