@@ -3,15 +3,15 @@ from pydantic import BaseModel
 from typing import List
 
 
-class TargetStatements(BaseModel):
+class TargetStatementsBySpeaker(BaseModel):
     speaker_name: str
     statement_contents: List[str]
 
 
-class TargetStatementsBySpeaker(BaseModel):
+class AllTargetStatements(BaseModel):
     start_period: datetime
     end_period: datetime
-    target_statements_per_speaker: List[TargetStatement]
+    target_statements_list_by_speaker: List[TargetStatementsBySpeaker]
 
 
 class WordCountBySpeaker(BaseModel):
@@ -20,6 +20,6 @@ class WordCountBySpeaker(BaseModel):
     count: int
 
 
-class WordCount(BaseModel):
+class AllWordCount(BaseModel):
     word: str
     word_count_list: List[WordCountBySpeaker]
