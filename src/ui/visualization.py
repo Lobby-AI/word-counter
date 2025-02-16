@@ -42,6 +42,6 @@ def create_word_count_graph(results: List[AllWordCount], start_period: datetime,
         title="発言数の内訳",
         xaxis_title="発言者",
         yaxis_title="発言回数",
-        showlegend=False,
+        showlegend=True,
     )
     return fig
