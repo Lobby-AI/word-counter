@@ -6,6 +6,7 @@ from src.counter.counter import WordCounter
 from src.ui.components import create_search_form
 from src.ui.visualization import create_word_count_graph
 from src.utils.logger import setup_logger
+from src.utils.process_str import convert_to_half_width
 
 
 logger = setup_logger()
@@ -17,27 +18,34 @@ def main():
     st.title("発言カウント")
 
     with st.sidebar:
-        search_word, start_period, end_period = create_search_form()
+        search_words, start_period, end_period = create_search_form()
         if start_period > end_period:
             st.warning("開始日は終了日以前に設定して下さい設定して下さい。")
             return
         # 検索ボタン
         search_button = st.button("検索")
-    if search_button and search_word:
+    if search_button and search_words:
         counter = WordCounter(PICKLE_PATH, logger)
         start_datetime = datetime.combine(start_period, datetime.min.time())
         end_datetime = datetime.combine(end_period, datetime.max.time())
 
         try:
-            result = counter.count_word_witin_period(search_word, start_datetime, end_datetime)
-            if len(result.word_count_list) == 0:
+            # 入力された単語を,で区切り、全角を半角に直して検索
+            results = [
+                counter.count_word_witin_period(
+                    convert_to_half_width(search_word).strip(), start_datetime, end_datetime
+                )
+                for search_word in set(search_words.split(","))
+            ]
+            # 結果に発言データが存在しなければ対象期間に議事録が存在しない
+            if len(results[0].word_count_list) == 0:
                 st.warning(
                     f"{start_period.strftime('%Y/%m/%d')}から{end_period.strftime('%Y/%m/%d')}の期間に議事録が存在しません。"
                 )
                 return
-            st.header(f"「{result.word}」の発言回数")
+            st.header(f"「{search_words}」の発言回数")
 
-            fig = create_word_count_graph(result, start_period, end_period)
+            fig = create_word_count_graph(results, start_period, end_period)
             if fig is None:
                 st.warning("対象の発言はありませんでした。")
                 return
