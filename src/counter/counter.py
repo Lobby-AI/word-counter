@@ -6,7 +6,13 @@ from logging import Logger
 from typing import Dict, List
 
 from src.models.minute import Minute
-from src.models.word_counter import TargetStatementsBySpeaker, AllTargetStatements, WordCountBySpeaker, AllWordCount
+from src.models.word_counter import (
+    StatementsBySpeaker,
+    AllStatements,
+    WordCountBySpeaker,
+    AllWordCount,
+    AllStatementsCountainsWord,
+)
 from src.utils.process_str import convert_to_half_width
 
 
@@ -52,7 +58,7 @@ class WordCounter:
                 for statement in minute.statements:
                     speaker_content[statement.speaker_name].append(convert_to_half_width(statement.content))
             target_statements_list = [
-                TargetStatementsBySpeaker(speaker_name=speaker, statement_contents=contents)
+                StatementsBySpeaker(speaker_name=speaker, statement_contents=contents)
                 for speaker, contents in speaker_content.items()
             ]
             self.logger.debug(target_statements_list)
@@ -67,11 +73,11 @@ class WordCounter:
         """
         return sum(statement.count(word) for statement in statements)
 
-    def _count_word_by_speaker(self, target_statements_list: List[TargetStatementsBySpeaker], word: str):
+    def _count_word_by_speaker(self, target_statements_list: List[StatementsBySpeaker], word: str):
         """
         発言者ごとに与えられた単語の発言回数をカウントする
         Args:
-            target_statements_list (List[TargetStatementsBySpeaker]): 発言者ごとの発言リストをまとめたリスト
+            target_statements_list (List[StatementsBySpeaker]): 発言者ごとの発言リストをまとめたリスト
             word (str): カウントしたい単語
         """
         try:
@@ -87,6 +93,22 @@ class WordCounter:
             raise
         return word_count_list
 
+    def _select_statements_contain_word(self, statements_by_speaker: StatementsBySpeaker, word: str):
+        """
+        発言者ごとの発言データからwordを含む発言のみを抽出する
+        Args:
+            statements_by_speaker (StatementsBySpeaker): 発言者ごとの発言データ
+            word (str): 検索したい単語
+        """
+        filtered_statements = list(
+            filter(lambda statement: word in statement, statements_by_speaker.statement_contents)
+        )
+        return (
+            StatementsBySpeaker(speaker_name=statements_by_speaker.speaker_name, statement_contents=filtered_statements)
+            if len(filtered_statements) > 0
+            else None
+        )
+
     def count_word_witin_period(self, word: str, start_period: datetime, end_period: datetime):
         """
         期間を指定して与えられた単語の発言回数をカウントする
@@ -100,16 +122,33 @@ class WordCounter:
             self.target_minute_list = self._get_minutes_within_period(start_period, end_period)
             # 議事録データのリストを発言者ごとの全発言のリストに変換
             target_statements_list = self._group_statement_by_speaker(self.target_minute_list)
-            _ = AllTargetStatements(
+            all_statements = AllStatements(
                 start_period=start_period,
                 end_period=end_period,
-                target_statements_list_by_speaker=target_statements_list,
+                statements_list=target_statements_list,
             )
             # 発言者ごとにwordの発言回数をカウント
             word_count_list = self._count_word_by_speaker(target_statements_list, word)
             all_word_count_result = AllWordCount(
                 word=word, start_period=start_period, end_period=end_period, word_count_list=word_count_list
             )
+            # wprdを含む発言のみ抽出
+            filtered_statements_list = list(
+                filter(
+                    None,
+                    map(
+                        lambda statements: self._select_statements_contain_word(statements, word),
+                        all_statements.statements_list,
+                    ),
+                )
+            )
+            all_statements_contains_word = AllStatementsCountainsWord(
+                word=word,
+                all_statements=AllStatements(
+                    start_period=start_period, end_period=end_period, statements_list=filtered_statements_list
+                ),
+            )
         except Exception as e:
             self.logger.error(f"単語のカウント中にエラーが発生しました: {e}")
-        return all_word_count_result
+            raise
+        return (all_word_count_result, all_statements_contains_word)
