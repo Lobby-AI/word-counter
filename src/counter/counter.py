@@ -11,7 +11,7 @@ from src.models.word_counter import (
     AllStatements,
     WordCountBySpeaker,
     AllWordCount,
-    AllStatementsCountainsWord,
+    AllStatementsContainsWord,
 )
 from src.utils.process_str import convert_to_half_width
 
@@ -142,7 +142,7 @@ class WordCounter:
                     ),
                 )
             )
-            all_statements_contains_word = AllStatementsCountainsWord(
+            all_statements_contains_word = AllStatementsContainsWord(
                 word=word,
                 all_statements=AllStatements(
                     start_period=start_period, end_period=end_period, statements_list=filtered_statements_list

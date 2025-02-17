@@ -14,7 +14,7 @@ class AllStatements(BaseModel):
     statements_list: List[StatementsBySpeaker]
 
 
-class AllStatementsCountainsWord(BaseModel):
+class AllStatementsContainsWord(BaseModel):
     word: str
     all_statements: AllStatements
 

@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List, Tuple
 
 from src.counter.counter import WordCounter
-from src.models.word_counter import AllStatementsCountainsWord, AllWordCount
+from src.models.word_counter import AllStatementsContainsWord, AllWordCount
 from src.ui.components import create_search_form
 from src.ui.visualization import Visualizer
 from src.utils.logger import setup_logger
@@ -35,7 +35,7 @@ def main():
 
         try:
             # 入力された単語を,で区切り、全角を半角に直して検索
-            results: List[Tuple[AllWordCount, AllStatementsCountainsWord]] = [
+            results: List[Tuple[AllWordCount, AllStatementsContainsWord]] = [
                 counter.count_word_witin_period(
                     convert_to_half_width(search_word).strip(), start_datetime, end_datetime
                 )

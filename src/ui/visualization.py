@@ -6,7 +6,7 @@ from functools import reduce
 from typing import List, Tuple
 
 from src.models.visualizer import StatementsTableData
-from src.models.word_counter import AllStatementsCountainsWord, AllWordCount
+from src.models.word_counter import AllStatementsContainsWord, AllWordCount
 
 
 class Visualizer:
@@ -56,7 +56,7 @@ class Visualizer:
         )
         return fig
 
-    def create_statements_df(self, all_statements_contain_word: AllStatementsCountainsWord):
+    def create_statements_df(self, all_statements_contain_word: AllStatementsContainsWord):
         """
         検索単語を含む発言のDataFrameを作成する
         Args:
@@ -71,7 +71,7 @@ class Visualizer:
         return df
 
     def create_word_count_graph_and_statements_tables(
-        self, results: List[Tuple[AllWordCount, AllStatementsCountainsWord]]
+        self, results: List[Tuple[AllWordCount, AllStatementsContainsWord]]
     ):
         """
         発言回数の積み上げグラフと検索単語を含む発言のDataFrameを作成する
