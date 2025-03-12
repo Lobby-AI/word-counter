@@ -13,7 +13,7 @@ from src.utils.process_str import convert_to_half_width
 
 logger = setup_logger()
 
-PICKLE_PATH = "pickle/shibuya/all_minutes_shibuya.pickle"
+PICKLE_PATH = "pickle/shibuya/sorted_minute_list_shibuya.pickle"
 
 counter = WordCounter(PICKLE_PATH, logger)
 visualizer = Visualizer()
