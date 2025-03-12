@@ -20,7 +20,7 @@ visualizer = Visualizer()
 
 
 def main():
-    st.title("発言カウント@渋谷区版")
+    st.title("渋谷のロビー@渋谷区議事録分析ツール")
 
     with st.sidebar:
         search_words, start_period, end_period = create_search_form()
