@@ -25,7 +25,7 @@ def main():
     with st.sidebar:
         search_words, start_period, end_period = create_search_form()
         if start_period > end_period:
-            st.warning("開始日は終了日以前に設定して下さい設定して下さい。")
+            st.warning("開始日は終了日以前に設定して下さい。")
             return
         # 検索ボタン
         search_button = st.button("検索")
@@ -35,11 +35,13 @@ def main():
 
         try:
             # 入力された単語を,で区切り、全角を半角に直して検索
+            search_word_hal_width = convert_to_half_width(search_words).strip()
+            search_words_list = list(filter(lambda x: x != "", dict.fromkeys(search_word_hal_width.split(" "))))
             results: List[Tuple[AllWordCount, AllStatementsContainsWord]] = [
                 counter.count_word_witin_period(
                     convert_to_half_width(search_word).strip(), start_datetime, end_datetime
                 )
-                for search_word in set(search_words.split(","))
+                for search_word in search_words_list
             ]
             # 結果に発言データが存在しなければ対象期間に議事録が存在しない
             if len(results[0][0].word_count_list) == 0:
@@ -47,16 +49,16 @@ def main():
                     f"{start_period.strftime('%Y/%m/%d')}から{end_period.strftime('%Y/%m/%d')}の期間に議事録が存在しません。"
                 )
                 return
-            st.header(f"「{search_words}」の発言回数")
+            st.header(f"{''.join([f'「{search_word}」' for search_word in search_words_list])}の発言回数")
 
             fig, statements_table_data_list = visualizer.create_word_count_graph_and_statements_tables(results)
             if fig is None:
-                st.warning("対象の発言はありませんでした。")
+                st.warning("対象の発言は存在しませんでした。")
                 return
             st.plotly_chart(fig)
             for statemene_table_data in statements_table_data_list:
                 with st.expander(f"「{statemene_table_data.word}」を含む発言"):
-                    st.write(statemene_table_data.to_dataframe())
+                    st.dataframe(statemene_table_data.to_dataframe())
 
         except Exception as e:
             st.error(f"エラーが発生しました: {str(e)}")
