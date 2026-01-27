@@ -17,6 +17,15 @@ jobs:
       pull-requests: write
       issues: write
     steps:
-      - uses: anthropics/claude-code-action@v1
+      # 1. リポジトリの内容をRunnerに展開する（これが必須！）
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # ブランチ操作を行うため、すべての履歴を取得
+          fetch-depth: 0
+
+      # 2. Claude Codeを実行
+      - name: Run Claude Code Action
+        uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
