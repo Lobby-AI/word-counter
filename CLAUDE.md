@@ -71,12 +71,21 @@
 
 ```
 app/
+  (features)/
+    dashboard/
+      page.tsx           # ダッシュボードページ
+      components/        # ダッシュボード専用コンポーネント
+      utils.ts           # ダッシュボード専用ユーティリティ
+    
+    settings/
+      page.tsx           # 設定ページ
+      hooks/             # 設定ページ専用フック
+      api/               # 設定関連のAPIエンドポイント
+
   users/
-    page.tsx           # ページコンポーネント
-    components/        # このページ専用のコンポーネント
-    hooks/             # このページ専用のフック
-    types.ts           # このページ専用の型定義
-    api/               # このページ専用のAPIルート
+    page.tsx             # ユーザー一覧ページ
+    components/          # ユーザー一覧専用コンポーネント
+    types.ts             # ユーザー関連の型定義
 ```
 
 ### Import ルール（厳守）
