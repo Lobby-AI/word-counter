@@ -1,14 +1,26 @@
+# Gemini Code Assist の組織共通設定ファイル。
+# 同期ワークフロー経由で各 repo の `.gemini/config.yaml` に配布される。
+
+# 返答トーン制御（必要に応じて調整）。
 have_fun: true
 
+# 長期メモリ機能を無効化。
 memory_config:
   disabled: true
 
 code_review:
+  # 自動レビュー機能は有効。
   disable: false
+  # MEDIUM 以上をコメント対象とする。
   comment_severity_threshold: MEDIUM
+  # コメント件数は無制限（-1）。
   max_review_comments: -1
   pull_request_opened:
+    # 初回ヘルプ文は出さない。
     help: false
+    # PR 作成時サマリーは投稿する。
     summary: true
+    # PR 作成時にレビューを実行する。
     code_review: true
+    # Draft PR も対象に含める。
     include_drafts: true
