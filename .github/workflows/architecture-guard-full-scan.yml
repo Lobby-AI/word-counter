@@ -217,18 +217,33 @@ jobs:
               report = null;
             }
 
+            // 実行エラーで report が生成されない場合は、誤検知 issue を作らない。
+            if (!report || typeof report !== 'object') {
+              core.warning('Skip full scan issue upsert: architecture-guard-report.json is unavailable.');
+              return;
+            }
+
             // 長すぎるログで issue 本文が壊れないよう上限をかける。
             const maxLen = 60000;
             const truncatedOutput = output.length > maxLen
               ? `${output.slice(0, maxLen)}\n... (truncated)`
               : output;
 
-            const mustCount = report?.summary?.mustActiveCount ?? 'n/a';
-            const warnCount = report?.summary?.warnActiveCount ?? 'n/a';
-            const suppressedCount = report?.summary?.suppressedCount ?? 'n/a';
+            const mustCount = Number(report?.summary?.mustActiveCount ?? 0);
+            const warnCount = Number(report?.summary?.warnActiveCount ?? 0);
+            const suppressedCount = Number(report?.summary?.suppressedCount ?? 0);
+            const hasActiveViolations = ((Number.isFinite(mustCount) ? mustCount : 0)
+              + (Number.isFinite(warnCount) ? warnCount : 0)) > 0;
+            const hasMustViolations = report?.summary?.hasMustViolations === true;
             const parserMode = report?.astImportParsingEnabled === true
               ? 'AST (typescript)'
               : 'Regex fallback';
+
+            // must/warn ともに違反0件のときは report issue を作成しない。
+            if (!hasActiveViolations) {
+              core.notice('Skip full scan issue upsert: no active violations.');
+              return;
+            }
 
             // Guard ごとの件数サマリーを読みやすい箇条書きへ変換する。
             const guardSummary = Array.isArray(report?.guards)
@@ -292,9 +307,16 @@ jobs:
               ? `- 他 ${remainingCount} 件はActionsログまたはJSONレポートを参照`
               : '- 追加の違反はありません';
 
-            const statusLine = passed
+            const scanStatus = passed
+              ? 'passed'
+              : hasMustViolations
+                ? 'must_violations'
+                : 'execution_error';
+            const statusLine = scanStatus === 'passed'
               ? '✅ Full scan passed'
-              : '❌ Full scan failed (must violations found)';
+              : scanStatus === 'must_violations'
+                ? '❌ Full scan failed (must violations found)'
+                : '⚠️ Full scan failed (execution error)';
 
             const body = [
               marker,
@@ -302,6 +324,7 @@ jobs:
               '',
               `- 実行日時 (UTC): ${new Date().toISOString()}`,
               `- 実行URL: ${runUrl}`,
+              `- スキャン結果: ${scanStatus}`,
               `- import解析モード: ${parserMode}`,
               `- must violations: ${mustCount}`,
               `- warn violations: ${warnCount}`,
@@ -354,10 +377,11 @@ jobs:
               });
             }
 
-      - name: Fail Workflow On Must Violations
-        # must 違反がある場合は workflow 全体を失敗扱いにする。
+      - name: Fail Workflow On Scan Failure
+        # guard 実行が失敗した場合（must違反または実行エラー）は workflow 全体を失敗扱いにする。
         if: steps.detect-next.outputs.is_nextjs == 'true' && steps.scan.outputs.exit_code != '0'
         run: |
-          echo "Architecture guard full scan detected must violations."
+          echo "Architecture guard full scan failed."
+          echo "Reason can be must violations or execution error."
           cat architecture-guard-output.txt
           exit 1
