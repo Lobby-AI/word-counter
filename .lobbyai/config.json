@@ -1,9 +1,0 @@
-{
-  "version": 1,
-  "sync": {
-    "claudeWorkflow": true,
-    "claudeMd": true,
-    "gemini": true,
-    "guards": true
-  }
-}
