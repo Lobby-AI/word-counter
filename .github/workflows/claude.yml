@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      id-token: write
       pull-requests: write
       issues: write
     steps:
@@ -30,7 +29,15 @@ jobs:
       - name: Run Claude Code Action
         uses: anthropics/claude-code-action@v1
         with:
-          # 実行方針は同期配布される CLAUDE.md を参照させる。
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          custom_instructions: "Follow our coding standards(CLAUDE.md)."
-          model: claude-opus-4-6
+          github_token: ${{ github.token }}
+          # __PROMPT_BLOCK__ は sync-claude-workflow.yml が配布時に共有 prompt へ置換します。
+          # この template を単体で実行すると placeholder は残るため、挙動確認は同期後 workflow を基準にします。
+          prompt: |
+            Follow the shared LobbyAI guidance below. Apply it to every answer, review, and code change in this workflow run.
+
+            ## 基本方針
+            
+            丁寧で親しみやすい日本語でレビューする。 良い設計や改善意図がある場合はそれを簡潔に認めつつ、 問題点は曖昧にせず、具体的かつ率直に指摘する。 重大な問題（バグ、セキュリティ、壊れる変更、運用事故につながる変更）は、影響と修正方針が分かるよう明確に伝える。 可読性と実務上の有用性を優先する。 アクセシビリティへの対応は3年後に予定されているため、現在は言及しない。
+            
+            
