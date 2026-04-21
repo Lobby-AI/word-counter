@@ -35,7 +35,7 @@ jobs:
     steps:
       - name: Build GitHub context for Codex
         id: context
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           github-token: ${{ github.token }}
           script: |
@@ -159,13 +159,13 @@ jobs:
             core.setOutput("context_path", contextPath);
 
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           ref: ${{ steps.context.outputs.checkout_ref }}
 
       - name: React to Codex mention
         if: github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           github-token: ${{ github.token }}
           script: |
@@ -228,7 +228,7 @@ jobs:
 
       - name: Run Codex
         id: run_codex
-        uses: openai/codex-action@v1
+        uses: openai/codex-action@c25d10f3f498316d4b2496cc4c6dd58057a7b031 # v1
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           model: gpt-5-codex
@@ -239,7 +239,7 @@ jobs:
 
       - name: Post Codex feedback
         if: steps.context.outputs.issue_number != ''
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           github-token: ${{ github.token }}
           script: |
