@@ -239,7 +239,7 @@ jobs:
           prompt: ${{ steps.build_prompt.outputs.prompt }}
           display_report: false
           claude_args: |
-            --model opus
+            --model sonnet
             --allowedTools "Glob,Grep,LS,Read,Bash(git diff:*),Bash(git show:*),Bash(git status:*),Bash(rg:*),Bash(sed:*),Bash(cat:*),Bash(find:*)"
 
       - name: Post Claude feedback
