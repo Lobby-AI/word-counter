@@ -378,7 +378,7 @@ jobs:
           - 不要に広い `permissions` を与えていないか
           - `pull_request_target` の利用が安全か
           - untrusted input を shell にそのまま渡していないか
-          - `${{ }}` の展開に secrets や危険入力の漏洩リスクがないか
+          - `${{ '${{' }} }}` の展開に secrets や危険入力の漏洩リスクがないか
           - 外部 Action は信頼できるか、可能ならバージョン pin や commit SHA pin があるか
           - キャッシュキーや artifact に機密情報が混ざらないか
           - fork 由来 PR で secrets が露出しない設計か
